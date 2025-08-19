@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Surprise for Mom</title>
+<style>
+  body {
+    background: linear-gradient(120deg, #05060a 0%, #071534 45%, #081018 100%);
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    user-select: none;
+  }
+  main {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    padding: 28px 32px;
+    border-radius: 18px;
+    text-align: center;
+    max-width: 400px;
+    margin: 40px auto 24px auto;
+    box-shadow: 0 10px 40px #ff4dd6bb, inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.7s, transform 0.7s;
+    font-family: 'Indie Flower', cursive;
+  }
+  .neon-title {
+    font-size: 2.3rem;
+    color: #ff4dd6;
+    text-shadow: 0 0 16px #ff4dd6, 0 0 40px #ff99e0;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+  }
+  #readyBtn {
+    background: linear-gradient(90deg, #ff7a92 0%, #ff4dd6 48%, #ff7a92 100%);
+    border: none;
+    border-radius: 999px;
+    padding: 14px 34px;
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 8px 40px #ff4dd6bb;
+    filter: drop-shadow(0 0 12px #ff4dd6cc);
+    outline: none;
+    margin-top: 16px;
+    margin-bottom: 14px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  #readyBtn:active {
+    transform: scale(0.98);
+  }
+  #fireworksCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+  }
+  /* Birthday page */
+  #birthdayPage {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    margin-top: 28px;
+    z-index: 10;
+  }
+  #birthdayHeading {
+  text-align: center;
+  width: 100%;
+  margin: 2.5rem auto 1rem auto;
+  font-size: 3rem;
+  font-family: 'Pacifico', cursive, 'Indie Flower', cursive;
+  color: #ff4dd6;
+  text-shadow: 0 0 22px #ff4dd6, 0 0 49px #ff99e0;
+  letter-spacing: 2px;
+  animation: pulseNeon 2s infinite alternate;
+  user-select: none;
+  display: block;
+}
+@media (max-width: 600px) {
+  #birthdayHeading {
+    font-size: 2rem;
+    margin: 1.7rem auto 0.7rem auto;
+    word-break: break-word;
+  }
+  }
+  #cakeEmoji {
+    font-size: 5rem;
+    text-shadow: 0 0 18px #ff4dd6, 0 0 32px #ff99e0;
+    margin: 18px 0 3px 0;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.18s;
+    filter: drop-shadow(0 0 10px #ff99e099);
+  }
+  #cakeEmoji:hover {
+    transform: scale(1.08) rotate(-8deg);
+    text-shadow: 0 0 26px #ff4dd6, 0 0 38px #fff;
+  }
+  #cakeLabel {
+    font-family: inherit;
+    font-size: 1.25rem;
+    color: #ffb7ee;
+    text-shadow: 0 0 7px #ff4dd6, 0 0 13px #fff;
+    margin-bottom: 6px;
+    user-select: none;
+    text-align: center;
+  }
+  #quote {
+    margin: 22px auto 0 auto;
+    font-size: 1.12rem;
+    max-width: 360px;
+    text-align: center;
+    font-style: italic;
+    color: #ffd6fb;
+    padding: 14px 11px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 13px;
+    font-family: 'Indie Flower', cursive;
+    text-shadow: 0 0 9px #ff4dd6, 0 0 17px #ff99e0;
+    box-shadow: 0 0 15px #ff99e077;
+    line-height: 1.5;
+    min-height: 55px;
+    margin-bottom: 10px;
+    user-select: none;
+  }
+  #emojiDropContainer {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: visible;
+    z-index: 9999;
+  }
+  .emojiDrop {
+    position: absolute;
+    font-size: 2.5rem;
+    user-select: none;
+    opacity: 0.92;
+    will-change: transform, opacity;
+    animation-name: dropFade;
+    animation-timing-function: linear;
+  }
+  @keyframes dropFade {
+    0% {
+      opacity: 1;
+      transform: translateY(-100px) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(110vh) rotate(720deg);
+    }
+  }
+</style>
+</head>
+<body>
+<audio id="oruMuraiSong" loop>
+  <source src="oru_murai.mp3" type="audio/mpeg" />
+</audio>
+<audio id="birthdayVoice" src="birthday_message.mp3" preload="auto"></audio>
+<main>
+  <section id="readyCard" class="card">
+    <h1 class="neon-title">Are you ready for the surprise, Mom?</h1>
+    <p class="lead">Click the button below to start the celebration!</p>
+    <button id="readyBtn" class="neon-btn">I'm Ready 🎁</button>
+    <p class="hint">Tip: You can also press <kbd>Enter</kbd> to begin.</p>
+  </section>
+
+  <canvas id="fireworksCanvas" aria-hidden="true"></canvas>
+
+  <div id="birthdayPage">
+    <h1 id="birthdayHeading">Happy Birthday Mahh 💙</h1>
+    <span id="cakeEmoji" title="Click the cake for a proverb!">🎂</span>
+    <div id="cakeLabel">Tap the cake for a sweet message!</div>
+    <div id="quote">Click the cake for a mother’s proverb or wish!</div>
+    <div id="emojiDropContainer"></div>
+  </div>
+</main>
+
+<script>
+const readyBtn = document.getElementById('readyBtn');
+const readyCard = document.getElementById('readyCard');
+const birthdayPage = document.getElementById('birthdayPage');
+const fireworksCanvas = document.getElementById('fireworksCanvas');
+const oruMuraiSong = document.getElementById('oruMuraiSong');
+const cakeEmoji = document.getElementById('cakeEmoji');
+const cakeLabel = document.getElementById('cakeLabel');
+const quoteBox = document.getElementById('quote');
+const emojiDropContainer = document.getElementById('emojiDropContainer');
+const birthdayVoice = document.getElementById('birthdayVoice');
+
+let fireworks = [];
+let clickCount = 0;
+const maxFireworks = 4;
+
+// Resize fireworks canvas
+function resizeCanvas() {
+  fireworksCanvas.width = window.innerWidth;
+  fireworksCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Firework logic
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.radius = 2 + Math.random() * 2;
+    this.color = color;
+    this.speed = Math.random() * 4 + 2;
+    this.angle = Math.random() * 2 * Math.PI;
+    this.alpha = 1;
+    this.decay = 0.015 + Math.random() * 0.015;
+    this.vx = Math.cos(this.angle) * this.speed;
+    this.vy = Math.sin(this.angle) * this.speed;
+    this.gravity = 0.07;
+  }
+  update() {
+    this.vx *= 0.98;
+    this.vy *= 0.98;
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= this.decay;
+  }
+  draw() {
+    if (this.alpha <= 0) return;
+    const ctx = fireworksCanvas.getContext('2d');
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 8;
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class Firework {
+  constructor() {
+    this.x = Math.random() * fireworksCanvas.width;
+    this.y = fireworksCanvas.height;
+    this.targetY = Math.random() * (fireworksCanvas.height / 2) + 100;
+    this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+    this.speedY = 5 + Math.random() * 3;
+    this.particles = [];
+    this.exploded = false;
+  }
+  update() {
+    if (!this.exploded) {
+      this.y -= this.speedY;
+      if (this.y <= this.targetY) this.explode();
+    } else {
+      this.particles.forEach(p => p.update());
+      this.particles = this.particles.filter(p => p.alpha > 0);
+    }
+  }
+  explode() {
+    this.exploded = true;
+    const count = 22 + Math.floor(Math.random() * 19);
+    for (let i = 0; i < count; i++) {
+      this.particles.push(new Particle(this.x, this.y, this.color));
+    }
+  }
+  draw() {
+    const ctx = fireworksCanvas.getContext('2d');
+    if (!this.exploded) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 16;
+      ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    } else {
+      this.particles.forEach(p => p.draw());
+    }
+  }
+}
+
+function animateFireworks() {
+  const ctx = fireworksCanvas.getContext('2d');
+  ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+  if (fireworks.length < maxFireworks && Math.random() < 0.07)
+    fireworks.push(new Firework());
+  fireworks.forEach((firework, i) => {
+    firework.update();
+    firework.draw();
+    if (firework.exploded && firework.particles.length === 0)
+      fireworks.splice(i, 1);
+  });
+  requestAnimationFrame(animateFireworks);
+}
+
+function playMusic(audioElem) {
+  if (!audioElem) return;
+  audioElem.currentTime = 0;
+  audioElem.muted = false;
+  let playPromise = audioElem.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      alert('Please tap again to enable audio playback.');
+    });
+  }
+}
+
+// Show birthdayPage and fireworks after ready
+function showBirthdayPage() {
+  readyCard.style.opacity = '0';
+  readyCard.style.transform = 'translateY(-28px) scale(0.96)';
+  setTimeout(() => {
+    readyCard.style.display = 'none';
+    birthdayPage.style.display = 'flex';
+    animateFireworks();
+    playMusic(oruMuraiSong);
+  }, 650);
+}
+
+// Cake emoji click logic
+const quotes = [
+  "A mother’s love is the heart of the family.",
+  "You are the guiding light of our lives.",
+  "Home is where Mom is.",
+  "Your support is our sweetest joy.",
+  "Happy Birthday to the heart of our happy family!",
+  "Thank you for every hug, every moment.",
+  "You make our home bloom with happiness.",
+  "Life is like a cake—your love is the sweetest slice!",
+  "Mom, you add the sparkle to our days.",
+  "Wishing you a year filled with laughter, love, and cake! 🍰"
+];
+
+cakeEmoji.addEventListener('click', () => {
+  quoteBox.textContent = quotes[clickCount % quotes.length];
+  clickCount++;
+  if (birthdayVoice) {
+    birthdayVoice.currentTime = 0;
+    birthdayVoice.play().catch(() => {
+      sayHappyBirthday();
+    });
+  } else {
+    sayHappyBirthday();
+  }
+  startEmojiRain();
+});
+
+function startEmojiRain() {
+  const emojis = ['🍫', '🍬', '🍩', '🍭', '❤️', '💖', '💜', '💙', '💛', '🖤'];
+  const count = 36;
+  emojiDropContainer.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const emojiSpan = document.createElement('span');
+    emojiSpan.classList.add('emojiDrop');
+    emojiSpan.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    emojiSpan.style.left = `${Math.random() * 100}vw`;
+    emojiSpan.style.top = `${-Math.random() * 40}px`;
+    emojiSpan.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    emojiSpan.style.animationDelay = (Math.random() * 0.8) + 's';
+    emojiDropContainer.appendChild(emojiSpan);
+    emojiSpan.addEventListener('animationend', () => emojiSpan.remove());
+  }
+}
+
+function sayHappyBirthday() {
+  if ('speechSynthesis' in window) {
+    const msg = new SpeechSynthesisUtterance('Happy Birthday Mom, I love you!');
+    msg.lang = 'en-US';
+    msg.pitch = 1.2;
+    msg.rate = 1;
+    window.speechSynthesis.speak(msg);
+  }
+}
+
+// Event listeners
+readyBtn.addEventListener('click', showBirthdayPage);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') showBirthdayPage();
+});
+</script>
+</body>
+</html>
